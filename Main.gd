@@ -1,38 +1,34 @@
 extends TileMap
 
 var tiles: Array[Tile]
-const MAP_SIZE := Vector2i(5,5)
+const MAP_SIZE := Vector2i(50,50)
 
 var all_open_tiles := []
 
 func _ready()-> void:
-	tiles.append(Tile.new("Blank",Vector2i(0,0)))
-	tiles.append(Tile.new("Stright",Vector2i(14,3)))
-	tiles.append(Tile.new("StrightR",Vector2i(14,3)))
-	tiles.append(Tile.new("Turn",Vector2i(15,3)))
+	tiles.append(Tile.new("Blank",Vector2i(0,0),["Blank","Blank","Blank","Blank"]))
+	tiles.append(Tile.new("Stright",Vector2i(14,3),["Line","Blank","Line","Blank"]))
+	tiles.append(Tile.new("StrightT",Vector2i(14,3),["Blank","Line","Blank","Line"],1))
 	
-	tiles[0].setAllDir("Blank")
-	tiles[1].setDir("Line","Blank","Line","Blank")
-	tiles[2].setDir("Blank","Line","Blank","Line")
-	tiles[3].setDir("Blank","Line","Line","Blank")
-	
+	tiles.append(Tile.new("Turn0",Vector2i(15,3),["Blank","Line","Line","Blank"]))
+	tiles.append(Tile.new("Turn1",Vector2i(15,3),["Blank","Blank","Line","Line"],1))
+	tiles.append(Tile.new("Turn2",Vector2i(15,3),["Line","Blank","Blank","Line"],2))
+	tiles.append(Tile.new("Turn3",Vector2i(15,3),["Line","Line","Blank","Blank"],3))
 	
 	for x in range(MAP_SIZE.x):
 		for y in range(MAP_SIZE.y):
 			all_open_tiles.append(tiles.duplicate())
 	for x in range(MAP_SIZE.x):
 		for y in range(MAP_SIZE.y):
-			await get_tree().create_timer(0.1).timeout
-			
+			await get_tree().create_timer(0.001).timeout
 			set_tile(all_open_tiles[coordsToArray(Vector2i(x,y))].pick_random(),Vector2i(x,y))
+			update_tiles(Vector2i(x,y))
 
 
 func set_tile(tile:Tile,coords:Vector2i)->void:
 	all_open_tiles[coordsToArray(coords)] = [tile]
-	set_cell(tile.layer,coords,0,tile.tile_coord)
-	print("set:",coords,tile)
-	
-	update_tiles(coords)
+	set_cell(tile.layer,coords,0,tile.tile_coord,tile.alternative)
+	#print("set:",coords,tile)
 
 func update_tiles(coords:Vector2i)->void:
 	var updated_places := []
@@ -44,22 +40,9 @@ func update_tiles(coords:Vector2i)->void:
 		var remove_array := []
 		for tile_num in all_open_tiles[coordsToArray(new_coords)]:
 			var remove := true
-			var dir : String
-			
-			match n:
-				0: dir = tile_num.dir0
-				1: dir = tile_num.dir1
-				2: dir = tile_num.dir2
-				3: dir = tile_num.dir3
-			
+
 			for tile in all_open_tiles[coordsToArray(coords)]:
-				var side_dir : String
-				match n:
-					0: side_dir = tile.dir2
-					1: side_dir = tile.dir3
-					2: side_dir = tile.dir0
-					3: side_dir = tile.dir1
-				if dir == side_dir:
+				if tile_num.dir[n] == tile.dir[(n+2)%4]:
 					remove = false
 					break
 			
