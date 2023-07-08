@@ -7,11 +7,9 @@ var all_open_tiles := []
 var save_state := []
 var current_tile : Tile
 var current_coords : Vector2i
-var stop = false
+var stop := false
 
 func _ready()-> void:
-	#seed(100)
-	
 	tiles.append(Tile.new("Blank",[Tile_Place.new(Vector2i(-1,-1),0,0)],["Blank","Blank","Blank","Blank"],2))
 	tiles.append(Tile.new("Stright",[Tile_Place.new(Vector2i(14,3),0,0)],["Line","Blank","Line","Blank"],10))
 	tiles.append(Tile.new("StrightT",[Tile_Place.new(Vector2i(14,3),0,1)],["Blank","Line","Blank","Line"],10))
@@ -21,10 +19,10 @@ func _ready()-> void:
 	tiles.append(Tile.new("Turn2",[Tile_Place.new(Vector2i(15,3),0,2)],["Line","Blank","Blank","Line"],5))
 	tiles.append(Tile.new("Turn3",[Tile_Place.new(Vector2i(15,3),0,3)],["Line","Line","Blank","Blank"],5))
 	
-	tiles.append(Tile.new("Stop0",[Tile_Place.new(Vector2i(13,3),0,0)],["Blank","Blank","Line","Blank"],1))
-	tiles.append(Tile.new("Stop1",[Tile_Place.new(Vector2i(13,3),0,1)],["Blank","Blank","Blank","Line"],1))
-	tiles.append(Tile.new("Stop2",[Tile_Place.new(Vector2i(13,3),0,2)],["Line","Blank","Blank","Blank"],1))
-	tiles.append(Tile.new("Stop3",[Tile_Place.new(Vector2i(13,3),0,3)],["Blank","Line","Blank","Blank"],1))
+	tiles.append(Tile.new("Stop0",[Tile_Place.new(Vector2i(13,2),0,0)],["Blank","Blank","Line","Blank"],1))
+	tiles.append(Tile.new("Stop1",[Tile_Place.new(Vector2i(13,2),0,1)],["Blank","Blank","Blank","Line"],1))
+	tiles.append(Tile.new("Stop2",[Tile_Place.new(Vector2i(13,2),0,2)],["Line","Blank","Blank","Blank"],1))
+	tiles.append(Tile.new("Stop3",[Tile_Place.new(Vector2i(13,2),0,3)],["Blank","Line","Blank","Blank"],1))
 	
 	tiles.append(Tile.new("Up0",[Tile_Place.new(Vector2i(13,3),0,0),Tile_Place.new(Vector2i(13,3),1,2)],["Up","Blank","Line","Blank"],5))
 	tiles.append(Tile.new("Up1",[Tile_Place.new(Vector2i(13,3),0,1),Tile_Place.new(Vector2i(13,3),1,3)],["Blank","Up","Blank","Line"],5))
@@ -37,12 +35,30 @@ func _ready()-> void:
 	tiles.append(Tile.new("UpDown",[Tile_Place.new(Vector2i(14,3),1,0),Tile_Place.new(Vector2i(14,3),0,1)],["Up","Line","Up","Line"],10))
 	tiles.append(Tile.new("UpDownT",[Tile_Place.new(Vector2i(14,3),1,1),Tile_Place.new(Vector2i(14,3),0,0)],["Line","Up","Line","Up"],10))
 	
+	tiles.append(Tile.new("Path",[Tile_Place.new(Vector2i(13,1),0,0)],["Path","Blank","Path","Blank"],10))
+	tiles.append(Tile.new("PathT",[Tile_Place.new(Vector2i(13,1),0,1)],["Blank","Path","Blank","Path"],10))
+	
+	tiles.append(Tile.new("PathS0",[Tile_Place.new(Vector2i(14,1),0,0)],["Path","Path","Blank","Blank"],5))
+	tiles.append(Tile.new("PathS1",[Tile_Place.new(Vector2i(14,1),0,1)],["Blank","Blank","Path","Path"],5))
+	tiles.append(Tile.new("PathS2",[Tile_Place.new(Vector2i(14,1),0,2)],["Path","Blank","Blank","Path"],5))
+	tiles.append(Tile.new("PathS3",[Tile_Place.new(Vector2i(14,1),0,3)],["Blank","Path","Path","Blank"],5))
+	
+	tiles.append(Tile.new("PathTS0",[Tile_Place.new(Vector2i(15,1),0,0)],["Path","Path","Blank","Path"],5))
+	tiles.append(Tile.new("PathTS1",[Tile_Place.new(Vector2i(15,1),0,1)],["Path","Blank","Path","Path"],5))
+	tiles.append(Tile.new("PathTS2",[Tile_Place.new(Vector2i(15,1),0,2)],["Blank","Path","Path","Path"],5))
+	tiles.append(Tile.new("PathTS3",[Tile_Place.new(Vector2i(15,1),0,3)],["Path","Path","Path","Blank"],5))
+	
+	tiles.append(Tile.new("Path4",[Tile_Place.new(Vector2i(16,1),0,0)],["Path","Path","Path","Path"],5))
+	
+	tiles.append(Tile.new("UpDown",[Tile_Place.new(Vector2i(14,3),1,0),Tile_Place.new(Vector2i(13,1),0,1)],["Up","Path","Up","Path"],10))
+	tiles.append(Tile.new("UpDownT",[Tile_Place.new(Vector2i(14,3),1,1),Tile_Place.new(Vector2i(13,1),0,0)],["Path","Up","Path","Up"],10))
+	
 	for x in range(MAP_SIZE.x):
 		for y in range(MAP_SIZE.y):
 			all_open_tiles.append(tiles.duplicate())
-			set_cell(0,Vector2i(x,y),0,Vector2i(0,1))
+			set_cell(0,Vector2i(x,y),0,Vector2i(0,0))
 	
-	var unused := get_used_cells_by_id(0,0,Vector2i(0,1))#,Vector2i(0,0))
+	var unused := get_used_cells_by_id(0,0,Vector2i(0,0))#,Vector2i(0,0))
 	while !unused.is_empty() and !stop:
 		current_coords = unused.pick_random()
 		#print("new",current)
@@ -51,7 +67,7 @@ func _ready()-> void:
 		set_tile(current_tile,current_coords)
 		update_tiles(current_coords)
 		
-		unused = get_used_cells_by_id(0,0,Vector2i(0,1))
+		unused = get_used_cells_by_id(0,0,Vector2i(0,0))
 		await get_tree().create_timer(0.001).timeout
 	print("Done")
 
@@ -86,7 +102,7 @@ func update_tiles(coords:Vector2i)->void:
 		if(!remove_array.is_empty()):
 			if(remove_array.size()==all_open_tiles[coordsToArray(new_coords)].size()):
 				#stop=true
-				print("help:",new_coords,coords,all_open_tiles[coordsToArray(new_coords)],remove_array)
+				#print("help:",new_coords,coords,all_open_tiles[coordsToArray(new_coords)],remove_array)
 				all_open_tiles = save_state
 				all_open_tiles[coordsToArray(current_coords)].erase(current_tile)
 				return
